@@ -1,0 +1,24 @@
+{
+  "name": "nodenet-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/test.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc",
+    "build:js": "babel src --out-dir lib --extensions \".js\" --source-maps inline"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.21.0",
+    "@babel/preset-env": "^7.20.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-typescript": "^7.21.0",
+    "babel-cli": "^6.26.0"
+  }
+}
