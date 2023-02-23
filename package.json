@@ -1,5 +1,5 @@
 {
-  "name": "nodenet-server",
+  "name": "nodenet-core",
   "version": "1.0.0",
   "description": "",
   "main": "src/test.ts",
@@ -10,15 +10,17 @@
     "build:types": "tsc",
     "build:js": "babel src --out-dir lib --extensions \".js\" --source-maps inline"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "NodeNet",
+    "NodeNetCore",
+    "Core"
+  ],
+  "author": "Mario Bertsch",
+  "license": "MIT",
   "dependencies": {
     "@babel/plugin-proposal-decorators": "^7.21.0",
-    "@babel/preset-env": "^7.20.2"
-  },
-  "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.21.0",
+    "@babel/preset-env": "^7.20.2",
     "babel-cli": "^6.26.0"
   }
 }
