@@ -1,24 +1,22 @@
+"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let myControllers = {};
-let MyClass = class MyClass {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TestService = void 0;
+const service_1 = require("../src/service");
+const _utils_1 = require("../src/_utils");
+let TestService = class TestService extends _utils_1.IDispatch {
+    call(v) {
+        console.log("HERE Service", v);
+        return this.dispatch("D-Service");
+    }
 };
-MyClass = __decorate([
-    Controller('/class')
-], MyClass);
-let MyClass2 = class MyClass2 {
-};
-MyClass2 = __decorate([
-    Controller('/test')
-], MyClass2);
-function Controller(path) {
-    return function decorator(target) {
-        myControllers[path] = target;
-    };
-}
-console.log(myControllers);
-//# sourceMappingURL=test.js.map
+TestService = __decorate([
+    (0, service_1.Service)()
+], TestService);
+exports.TestService = TestService;
+//# sourceMappingURL=service.js.map

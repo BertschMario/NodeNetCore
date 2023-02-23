@@ -1,1 +1,1 @@
-# NodeNetTemplate
+# MyProject

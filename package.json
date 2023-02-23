@@ -2,7 +2,7 @@
   "name": "nodenet-core",
   "version": "1.0.0",
   "description": "",
-  "main": "src/test.ts",
+  "main": "test/controller.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
@@ -22,5 +22,8 @@
     "@babel/plugin-transform-typescript": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
     "babel-cli": "^6.26.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.4"
   }
 }
