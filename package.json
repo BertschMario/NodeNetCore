@@ -1,6 +1,6 @@
 {
   "name": "@nodenet/core",
-  "version": "1.0.4",
+  "version": "0.0.1",
   "description": "NodeNet Core Library",
   "main": "test/startup.js",
   "scripts": {
