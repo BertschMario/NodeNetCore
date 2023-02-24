@@ -30,14 +30,23 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
-const module_1 = require("../src/module");
+const src_1 = require("../src");
 const controller = __importStar(require("./controller"));
 const service = __importStar(require("./service"));
 const database = __importStar(require("./database"));
 let AppModule = class AppModule {
+    constructor() {
+        this.config = {
+            name: 'Test Server',
+            port: 3000,
+        };
+    }
+    init() {
+        console.log('HERE INIT');
+    }
 };
 AppModule = __decorate([
-    (0, module_1.Module)(controller, service, database)
+    (0, src_1.Module)(controller, service, database)
 ], AppModule);
 exports.AppModule = AppModule;
 //# sourceMappingURL=startup.js.map

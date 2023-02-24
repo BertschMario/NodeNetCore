@@ -1,1 +1,1 @@
-export * from "./database.main";
+export * from './database.main';

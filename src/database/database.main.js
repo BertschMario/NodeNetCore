@@ -8,9 +8,9 @@ function Database() {
         const database = new target();
         if (!database.call)
             return _utils_1.Logger.error(`Database "${target.name}" does not have an call method`);
-        if (!target.name.endsWith("Database"))
+        if (!target.name.endsWith('Database'))
             return _utils_1.Logger.error(`Database name "${target.name}" does not end with Database`);
-        main_1.databases[target.name] = database;
+        return (main_1.databases[target.name] = database);
     };
 }
 exports.Database = Database;

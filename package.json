@@ -1,14 +1,14 @@
 {
-  "name": "nodenet-core",
-  "version": "1.0.0",
-  "description": "",
-  "main": "test/controller.ts",
+  "name": "@nodenet/core",
+  "version": "1.0.3",
+  "description": "NodeNet Core Library",
+  "main": "test/startup.js",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc",
-    "build:js": "babel src --out-dir lib --extensions \".js\" --source-maps inline"
+    "build:js": "babel src --out-dir dist --extensions \".js\" --source-maps inline"
   },
   "keywords": [
     "NodeNet",
@@ -21,6 +21,7 @@
     "@babel/plugin-proposal-decorators": "^7.21.0",
     "@babel/plugin-transform-typescript": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
+    "@types/node": "^18.14.1",
     "babel-cli": "^6.26.0"
   },
   "devDependencies": {

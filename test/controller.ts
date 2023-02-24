@@ -1,11 +1,11 @@
-import { Controller } from "../src/controller";
-import { IDispatch } from "../src/_utils";
+import { Controller, IController } from '../src';
 
-@Controller("[GET]", "/")
-export class TestController extends IDispatch {
-  call(v) {
-    console.log("HERE Controller", v);
-    const data = this.dispatch("D-Controller");
+@Controller('[GET]', '/')
+export class TestController extends IController {
+  async call(server) {
+    console.log('HERE Controller');
+    const data = await this.dispatch('D-Controller');
     console.log(data);
+    return server.error(data);
   }
 }

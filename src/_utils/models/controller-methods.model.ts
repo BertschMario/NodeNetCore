@@ -1,1 +1,1 @@
-export type ControllerMethods = "[GET]" | "[POST]" | "[PUT]" | "[DELETE]";
+export type ControllerMethods = '[GET]' | '[POST]' | '[PUT]' | '[DELETE]';

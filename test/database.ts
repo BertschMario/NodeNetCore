@@ -1,9 +1,9 @@
-import { Database } from "../src/database";
+import { Database, IDatabase } from '../src';
 
 @Database()
-export class TestDatabase {
-  call(v) {
-    console.log("HERE Database", v);
-    return "From database";
+export class TestDatabase extends IDatabase {
+  async call(v) {
+    console.log('HERE Database', v);
+    return 'From database';
   }
 }
