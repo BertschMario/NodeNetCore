@@ -24,6 +24,10 @@
     "@types/node": "^18.14.1",
     "babel-cli": "^6.26.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BertschMario/NodeNetCore.git"
+  },
   "devDependencies": {
     "prettier": "^2.8.4"
   }
