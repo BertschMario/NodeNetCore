@@ -1,11 +1,14 @@
 import { controllers, services } from '../main';
 import { ControllerMethods, Logger } from '../_utils';
+import { WebSocketServer } from 'ws';
 
 export function Controller<T>(method: ControllerMethods, path: string) {
   return function decorator(target) {
     const controller = new target();
     controller.method = method;
     controller.path = path;
+
+    if (method === '[WS]') controller.websocket = new WebSocketServer({ noServer: true });
 
     if (!controller.call) return Logger.error(`Controller "${target.name}" does not have an call method`);
     if (!target.name.endsWith('Controller'))

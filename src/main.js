@@ -9,12 +9,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.main = exports.databases = exports.controllers = exports.services = void 0;
+exports.main = exports.webSocketGroups = exports.webSocketConnections = exports.databases = exports.controllers = exports.services = void 0;
 const server_1 = require("./_utils/server");
 const _utils_1 = require("./_utils");
 exports.services = {};
 exports.controllers = {};
 exports.databases = {};
+exports.webSocketConnections = {};
+exports.webSocketGroups = {};
 function main(config) {
     return __awaiter(this, void 0, void 0, function* () {
         _utils_1.Logger.info('Server is starting...');

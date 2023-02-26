@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TestController = void 0;
+exports.TestWSController = exports.TestController = void 0;
 const src_1 = require("../src");
 let TestController = class TestController extends src_1.IController {
     call(server) {
@@ -31,4 +31,30 @@ TestController = __decorate([
     (0, src_1.Controller)('[GET]', '/')
 ], TestController);
 exports.TestController = TestController;
+let TestWSController = class TestWSController extends src_1.IController {
+    call(server) {
+        return __awaiter(this, void 0, void 0, function* () {
+            server.ws.getId();
+            server.ws.onMessage((id, payload) => {
+                payload = payload.toString();
+                console.log('onMessage', id, payload);
+                server.ws.sendTo(id, 'onMessage');
+                if (payload === 'all')
+                    server.ws.sendAll('onMessage');
+                if (payload === 'add')
+                    server.ws.addToGroup('test', id);
+                if (payload === 'group')
+                    server.ws.sendToGroup('test', 'onMessage');
+            });
+            server.ws.onClose((id) => {
+                console.log('onClose', id);
+            });
+            return server.ok();
+        });
+    }
+};
+TestWSController = __decorate([
+    (0, src_1.Controller)('[WS]', '/testws')
+], TestWSController);
+exports.TestWSController = TestWSController;
 //# sourceMappingURL=controller.js.map

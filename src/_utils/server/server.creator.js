@@ -34,12 +34,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServerCreator = void 0;
 const http = __importStar(require("http"));
+const websocket_functions_1 = require("./websocket.functions");
 function ServerCreator(controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
         const server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
             for (const key in controllers) {
                 const controller = controllers[key];
-                if (controller.path === req.url && controller.method === `[${req.method}]`)
+                if (controller.websocket && controller.method === '[WS]' && req.headers.upgrade && controller.path === req.url) {
+                    return yield new Promise((resolve) => {
+                        controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => __awaiter(this, void 0, void 0, function* () {
+                            yield controller.call(getServerObject(req, res, ws));
+                            resolve();
+                        }));
+                    });
+                }
+                else if (controller.path === req.url && controller.method === `[${req.method}]`)
                     return res.end(yield controller.call(getServerObject(req, res)));
             }
             res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -49,11 +58,9 @@ function ServerCreator(controllers, config) {
     });
 }
 exports.ServerCreator = ServerCreator;
-function getServerObject(req, res) {
-    return {
-        req,
-        res,
-        getBody: () => __awaiter(this, void 0, void 0, function* () {
+function getServerObject(req, res, ws) {
+    return Object.assign({ req,
+        res, getBody: () => __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 let body = '';
                 req.on('data', (chunk) => {
@@ -63,16 +70,13 @@ function getServerObject(req, res) {
                     resolve(getPayload(body));
                 });
             });
-        }),
-        ok: (payload) => __awaiter(this, void 0, void 0, function* () {
+        }), ok: (payload) => __awaiter(this, void 0, void 0, function* () {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             return getPayload({ result: payload });
-        }),
-        error: (payload, code) => __awaiter(this, void 0, void 0, function* () {
+        }), error: (payload, code) => __awaiter(this, void 0, void 0, function* () {
             res.writeHead(code !== null && code !== void 0 ? code : 500, { 'Content-Type': 'application/json' });
             return getPayload({ error: payload !== null && payload !== void 0 ? payload : 'Internal Server Error', code: code !== null && code !== void 0 ? code : 500 });
-        }),
-    };
+        }) }, (0, websocket_functions_1.getWebsocketFunctions)(req, res, ws));
 }
 function getPayload(payload) {
     try {
