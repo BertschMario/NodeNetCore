@@ -34,10 +34,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServerCreator = void 0;
 const http = __importStar(require("http"));
+const models_1 = require("../models");
 const websocket_functions_1 = require("./websocket.functions");
 function ServerCreator(controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
         const server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
+            writeHead(res, req);
             for (const key in controllers) {
                 const controller = controllers[key];
                 if (controller.websocket && controller.method === '[WS]' && req.headers.upgrade && controller.path === req.url) {
@@ -51,6 +53,12 @@ function ServerCreator(controllers, config) {
                 else if (controller.path === req.url && controller.method === `[${req.method}]`)
                     return res.end(yield controller.call(getServerObject(req, res)));
             }
+            if (req.method === 'OPTIONS')
+                return res.end();
+            if (config.swagger && req.url === config.swagger.path) {
+                res.writeHead(301, { Location: `${(0, models_1.getHost)(config)}:${config.swagger.port}/api` });
+                return res.end();
+            }
             res.writeHead(404, { 'Content-Type': 'application/json' });
             return res.end(getPayload({ error: 'Not found', code: 404 }));
         }));
@@ -58,6 +66,12 @@ function ServerCreator(controllers, config) {
     });
 }
 exports.ServerCreator = ServerCreator;
+function writeHead(res, req) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization,Origin,Accept');
+    res.setHeader('Access-Control-Max-Age', '86400');
+}
 function getServerObject(req, res, ws) {
     return Object.assign({ req,
         res, getBody: () => __awaiter(this, void 0, void 0, function* () {

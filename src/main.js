@@ -23,7 +23,8 @@ function main(config) {
         if (!config)
             config = { name: 'NodeNet Server', port: 3000 };
         yield (0, server_1.ServerCreator)(exports.controllers, config);
-        _utils_1.Logger.info('Server is started: ' + 'http://0.0.0.0:' + config.port);
+        yield (0, _utils_1.SwaggerCreator)(exports.controllers, config);
+        _utils_1.Logger.info(`Server is started: ${(0, _utils_1.getHost)(config)}:${config.port}`);
     });
 }
 exports.main = main;

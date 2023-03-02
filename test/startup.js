@@ -39,6 +39,10 @@ let AppModule = class AppModule {
         this.config = {
             name: 'Test Server',
             port: 3000,
+            swagger: {
+                port: 3001,
+                path: '/test',
+            },
         };
     }
     init() {

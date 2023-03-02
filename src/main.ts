@@ -1,5 +1,5 @@
 import { Server, ServerCreator } from './_utils/server';
-import { Logger, ServerConfig } from './_utils';
+import { getHost, Logger, ServerConfig, SwaggerCreator } from './_utils';
 import { WebSocket } from 'ws';
 
 export let services: { [serviceName: string]: any } = {};
@@ -11,5 +11,6 @@ export async function main(config?: ServerConfig) {
   Logger.info('Server is starting...');
   if (!config) config = { name: 'NodeNet Server', port: 3000 };
   await ServerCreator(controllers, config);
-  Logger.info('Server is started: ' + 'http://0.0.0.0:' + config.port);
+  await SwaggerCreator(controllers, config);
+  Logger.info(`Server is started: ${getHost(config)}:${config.port}`);
 }

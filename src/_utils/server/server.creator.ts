@@ -1,5 +1,5 @@
 import * as http from 'http';
-import { ServerConfig } from '../models';
+import { getHost, ServerConfig } from '../models';
 import { Logger } from '../helper';
 import { WebSocket } from 'ws';
 import { getWebsocketFunctions } from './websocket.functions';
@@ -29,6 +29,7 @@ export type Server = {
 
 export async function ServerCreator(controllers: { [key: string]: any }, config: ServerConfig) {
   const server = http.createServer(async (req, res) => {
+    writeHead(res, req);
     for (const key in controllers) {
       const controller = controllers[key];
       //Websocket request
@@ -39,16 +40,27 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
             resolve();
           });
         });
-      }
-      //Http request
-      else if (controller.path === req.url && controller.method === `[${req.method}]`)
+      } else if (controller.path === req.url && controller.method === `[${req.method}]`)
         return res.end(await controller.call(getServerObject(req, res)));
+    }
+    //Options request
+    if (req.method === 'OPTIONS') return res.end();
+    if (config.swagger && req.url === config.swagger.path) {
+      res.writeHead(301, { Location: `${getHost(config)}:${config.swagger.port}/api` });
+      return res.end();
     }
     //Not found
     res.writeHead(404, { 'Content-Type': 'application/json' });
     return res.end(getPayload({ error: 'Not found', code: 404 }));
   });
   server.listen(config.port);
+}
+
+function writeHead(res: RES, req: REQ) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization,Origin,Accept');
+  res.setHeader('Access-Control-Max-Age', '86400');
 }
 
 function getServerObject(req: REQ, res: RES, ws?: WebSocket): Server {

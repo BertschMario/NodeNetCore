@@ -1,12 +1,21 @@
 import { Controller, IController } from '../src';
 
-@Controller('[GET]', '/')
+@Controller('[GET]', '/hallo')
 export class TestController extends IController {
   async call(server) {
     console.log('HERE Controller');
     const data = await this.dispatch('D-Controller');
     console.log(data);
     return server.error(data);
+  }
+}
+
+@Controller('[POST]', '/testPost')
+export class Test2Controller extends IController {
+  async call(server) {
+    const data = await server.getBody();
+    console.log(data);
+    return server.ok(data);
   }
 }
 
