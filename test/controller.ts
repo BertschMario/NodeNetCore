@@ -39,6 +39,7 @@ export class Test3Controller extends IController {
 export class TestWSController extends IController {
   async call(server) {
     server.ws.getId();
+    console.log('Connected', server.ws.getId());
     server.ws.onMessage((id, payload) => {
       payload = payload.toString();
       console.log('onMessage', id, payload);
@@ -49,7 +50,7 @@ export class TestWSController extends IController {
     });
 
     server.ws.onClose((id) => {
-      console.log('onClose', id);
+      console.log('Disconnected', id);
     });
 
     return server.ok();

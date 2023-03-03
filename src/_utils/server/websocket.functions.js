@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWebsocketFunctions = void 0;
 const main_1 = require("../../main");
-function getWebsocketFunctions(req, res, ws) {
+function getWebsocketFunctions(req, ws) {
     if (!ws)
         return {};
     const id = getRandomGuid();

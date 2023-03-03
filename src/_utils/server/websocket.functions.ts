@@ -2,10 +2,9 @@ import http from 'http';
 import { WebSocket } from 'ws';
 import { webSocketConnections, webSocketGroups } from '../../main';
 
-type RES = http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage };
 type REQ = http.IncomingMessage;
 
-export function getWebsocketFunctions(req: REQ, res: RES, ws?: WebSocket) {
+export function getWebsocketFunctions(req: REQ, ws?: WebSocket) {
   if (!ws) return {} as any;
   const id = getRandomGuid();
   webSocketConnections[id] = ws;

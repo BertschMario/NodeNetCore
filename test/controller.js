@@ -62,6 +62,7 @@ let TestWSController = class TestWSController extends src_1.IController {
     call(server) {
         return __awaiter(this, void 0, void 0, function* () {
             server.ws.getId();
+            console.log('Connected', server.ws.getId());
             server.ws.onMessage((id, payload) => {
                 payload = payload.toString();
                 console.log('onMessage', id, payload);
@@ -74,7 +75,7 @@ let TestWSController = class TestWSController extends src_1.IController {
                     server.ws.sendToGroup('test', 'onMessage');
             });
             server.ws.onClose((id) => {
-                console.log('onClose', id);
+                console.log('Disconnected', id);
             });
             return server.ok();
         });

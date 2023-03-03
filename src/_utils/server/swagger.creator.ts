@@ -1,8 +1,8 @@
-import { Express } from 'express';
 import * as swaggerUi from 'swagger-ui-express';
 import { ControllerMethods, getHost, ServerConfig } from '../models';
+import { Application, WithWebsocketMethod } from 'express-ws';
 export async function SwaggerCreator(
-  server: Express,
+  server: Application & WithWebsocketMethod,
   controllers: { [controllerName: string]: any },
   config: ServerConfig,
 ) {

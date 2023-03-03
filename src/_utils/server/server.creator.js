@@ -16,9 +16,10 @@ exports.ServerCreator = void 0;
 const websocket_functions_1 = require("./websocket.functions");
 const express_1 = __importDefault(require("express"));
 const swagger_creator_1 = require("./swagger.creator");
+const express_ws_1 = __importDefault(require("express-ws"));
 function ServerCreator(controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const server = (0, express_1.default)();
+        const server = (0, express_ws_1.default)((0, express_1.default)()).app;
         for (const key in controllers) {
             const controller = controllers[key];
             switch (controller.method) {
@@ -30,11 +31,12 @@ function ServerCreator(controllers, config) {
                     break;
                 }
                 case '[WS]': {
-                    server.get(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
-                        controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => __awaiter(this, void 0, void 0, function* () {
-                            writeHead(res);
-                            res.end(yield controller.call(getServerObject(req, res, ws)));
-                        }));
+                    server.get(controller.path, (req, res) => {
+                        writeHead(res);
+                        res.end();
+                    });
+                    server.ws(controller.path, (ws, req) => __awaiter(this, void 0, void 0, function* () {
+                        yield controller.call(getServerObject(req, undefined, ws));
                     }));
                     break;
                 }
@@ -93,12 +95,12 @@ function getServerObject(req, res, ws) {
                 });
             });
         }), ok: (payload) => __awaiter(this, void 0, void 0, function* () {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res && res.writeHead(200, { 'Content-Type': 'application/json' });
             return getPayload({ result: payload });
         }), error: (payload, code) => __awaiter(this, void 0, void 0, function* () {
-            res.writeHead(code !== null && code !== void 0 ? code : 500, { 'Content-Type': 'application/json' });
+            res && res.writeHead(code !== null && code !== void 0 ? code : 500, { 'Content-Type': 'application/json' });
             return getPayload({ error: payload !== null && payload !== void 0 ? payload : 'Internal Server Error', code: code !== null && code !== void 0 ? code : 500 });
-        }) }, (0, websocket_functions_1.getWebsocketFunctions)(req, res, ws));
+        }) }, (0, websocket_functions_1.getWebsocketFunctions)(req, ws));
 }
 function getPayload(payload) {
     try {

@@ -8,8 +8,6 @@ export function Controller(method: ControllerMethods, path: string) {
     controller.method = method;
     controller.path = path;
 
-    if (method === '[WS]') controller.websocket = new WebSocketServer({ noServer: true });
-
     if (!controller.call) return Logger.error(`Controller "${target.name}" does not have an call method`);
     if (!target.name.endsWith('Controller'))
       return Logger.error(`Controller name "${target.name}" does not end with Controller`);

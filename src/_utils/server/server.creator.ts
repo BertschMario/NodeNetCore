@@ -4,6 +4,7 @@ import { WebSocket } from 'ws';
 import { getWebsocketFunctions } from './websocket.functions';
 import express from 'express';
 import { SwaggerCreator } from './swagger.creator';
+import expressWs from 'express-ws';
 
 type RES = http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage };
 type REQ = http.IncomingMessage;
@@ -29,7 +30,7 @@ export type Server = {
 };
 
 export async function ServerCreator(controllers: { [key: string]: any }, config: ServerConfig) {
-  const server = express();
+  const server = expressWs(express()).app;
   for (const key in controllers) {
     const controller = controllers[key];
     switch (controller.method) {
@@ -41,11 +42,12 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
         break;
       }
       case '[WS]': {
-        server.get(controller.path, async (req, res) => {
-          controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), async (ws: WebSocket) => {
-            writeHead(res);
-            res.end(await controller.call(getServerObject(req, res, ws)));
-          });
+        server.get(controller.path, (req, res) => {
+          writeHead(res);
+          res.end();
+        });
+        server.ws(controller.path, async (ws, req) => {
+          await controller.call(getServerObject(req, undefined, ws));
         });
         break;
       }
@@ -93,7 +95,7 @@ function writeHead(res: RES) {
   res.setHeader('Access-Control-Max-Age', '86400');
 }
 
-function getServerObject(req: REQ, res: RES, ws?: WebSocket): Server {
+function getServerObject(req: REQ, res?: RES, ws?: WebSocket): Server {
   return {
     req,
     res,
@@ -109,14 +111,14 @@ function getServerObject(req: REQ, res: RES, ws?: WebSocket): Server {
       });
     },
     ok: async (payload?: any) => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res && res.writeHead(200, { 'Content-Type': 'application/json' });
       return getPayload({ result: payload });
     },
     error: async (payload?: any, code?: number) => {
-      res.writeHead(code ?? 500, { 'Content-Type': 'application/json' });
+      res && res.writeHead(code ?? 500, { 'Content-Type': 'application/json' });
       return getPayload({ error: payload ?? 'Internal Server Error', code: code ?? 500 });
     },
-    ...getWebsocketFunctions(req, res, ws),
+    ...getWebsocketFunctions(req, ws),
   };
 }
 
