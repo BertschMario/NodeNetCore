@@ -40,14 +40,11 @@ let AppModule = class AppModule {
             name: 'Test Server',
             port: 3000,
             swagger: {
-                port: 3001,
-                path: '/test',
+                path: '/swagger/api',
             },
         };
     }
-    init() {
-        console.log('HERE INIT');
-    }
+    init() { }
 };
 AppModule = __decorate([
     (0, src_1.Module)(controller, service, database)

@@ -2,7 +2,7 @@ import { controllers, services } from '../main';
 import { ControllerMethods, Logger } from '../_utils';
 import { WebSocketServer } from 'ws';
 
-export function Controller<T>(method: ControllerMethods, path: string) {
+export function Controller(method: ControllerMethods, path: string) {
   return function decorator(target) {
     const controller = new target();
     controller.method = method;

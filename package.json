@@ -1,6 +1,6 @@
 {
   "name": "@nodenet/core",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "description": "NodeNet Core Library",
   "main": "test/startup.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "@babel/plugin-proposal-decorators": "^7.21.0",
     "@babel/plugin-transform-typescript": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
-    "@types/node": "^18.14.4",
+    "@types/node": "^18.14.5",
     "@types/swagger-ui-express": "^4.1.3",
     "babel-cli": "^6.26.0",
     "express": "^4.18.2",

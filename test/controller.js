@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TestWSController = exports.Test2Controller = exports.TestController = void 0;
+exports.TestWSController = exports.Test3Controller = exports.Test2Controller = exports.TestController = void 0;
 const src_1 = require("../src");
 let TestController = class TestController extends src_1.IController {
     call(server) {
@@ -23,15 +23,29 @@ let TestController = class TestController extends src_1.IController {
             console.log('HERE Controller');
             const data = yield this.dispatch('D-Controller');
             console.log(data);
-            return server.error(data);
+            return server.ok(data);
         });
     }
 };
 TestController = __decorate([
-    (0, src_1.Controller)('[GET]', '/hallo')
+    (0, src_1.Controller)('[GET]', '/hallo/success')
 ], TestController);
 exports.TestController = TestController;
 let Test2Controller = class Test2Controller extends src_1.IController {
+    call(server) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log('HERE Controller');
+            const data = yield this.dispatch('D-Controller');
+            console.log(data);
+            return server.error(data, 400);
+        });
+    }
+};
+Test2Controller = __decorate([
+    (0, src_1.Controller)('[GET]', '/hallo/error')
+], Test2Controller);
+exports.Test2Controller = Test2Controller;
+let Test3Controller = class Test3Controller extends src_1.IController {
     call(server) {
         return __awaiter(this, void 0, void 0, function* () {
             const data = yield server.getBody();
@@ -40,10 +54,10 @@ let Test2Controller = class Test2Controller extends src_1.IController {
         });
     }
 };
-Test2Controller = __decorate([
+Test3Controller = __decorate([
     (0, src_1.Controller)('[POST]', '/testPost')
-], Test2Controller);
-exports.Test2Controller = Test2Controller;
+], Test3Controller);
+exports.Test3Controller = Test3Controller;
 let TestWSController = class TestWSController extends src_1.IController {
     call(server) {
         return __awaiter(this, void 0, void 0, function* () {

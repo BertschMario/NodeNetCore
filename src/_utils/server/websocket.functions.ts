@@ -1,7 +1,6 @@
 import http from 'http';
 import { WebSocket } from 'ws';
 import { webSocketConnections, webSocketGroups } from '../../main';
-import { Logger } from '../helper';
 
 type RES = http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage };
 type REQ = http.IncomingMessage;

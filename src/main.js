@@ -19,12 +19,12 @@ exports.webSocketConnections = {};
 exports.webSocketGroups = {};
 function main(config) {
     return __awaiter(this, void 0, void 0, function* () {
-        _utils_1.Logger.info('Server is starting...');
         if (!config)
             config = { name: 'NodeNet Server', port: 3000 };
         yield (0, server_1.ServerCreator)(exports.controllers, config);
-        yield (0, _utils_1.SwaggerCreator)(exports.controllers, config);
-        _utils_1.Logger.info(`Server is started: ${(0, _utils_1.getHost)(config)}:${config.port}`);
+        _utils_1.Logger.info(`Server running: ${(0, _utils_1.getHost)(config)}:${config.port}`);
+        if (config.swagger)
+            _utils_1.Logger.info(`Swagger running: ${(0, _utils_1.getHost)(config)}:${config.port}${config.swagger.path}/`);
     });
 }
 exports.main = main;

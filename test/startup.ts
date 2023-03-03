@@ -9,11 +9,8 @@ export class AppModule {
     name: 'Test Server',
     port: 3000,
     swagger: {
-      port: 3001,
-      path: '/api',
+      path: '/swagger/api',
     },
   };
-  init() {
-    console.log('HERE INIT');
-  }
+  init() {}
 }

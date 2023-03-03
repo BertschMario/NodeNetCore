@@ -31,56 +31,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SwaggerCreator = void 0;
-const express_1 = __importDefault(require("express"));
 const swaggerUi = __importStar(require("swagger-ui-express"));
-const helper_1 = require("../helper");
 const models_1 = require("../models");
-function SwaggerCreator(controllers, config) {
+function SwaggerCreator(server, controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!config.swagger)
             return;
-        const swaggerServer = (0, express_1.default)();
-        swaggerServer
-            .listen(config.swagger.port, () => {
-            swaggerServer.use(`/api`, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
-        })
-            .on('error', (e) => helper_1.Logger.error(e));
+        server.use(config.swagger.path, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
     });
 }
 exports.SwaggerCreator = SwaggerCreator;
 function createSwaggerJson(controllers, config) {
-    var _a, _b, _c, _d, _e, _f;
-    const paths = {};
-    for (const controllerName in controllers) {
-        const controller = controllers[controllerName];
-        if (!controller.path)
-            continue;
-        paths[controller.path] = {
-            [getMethod(controller.method)]: Object.assign({ description: (_a = controller.description) !== null && _a !== void 0 ? _a : controllerName }, getBody(getMethod(controller.method))),
-        };
-    }
+    return Object.assign(Object.assign({}, getHeader(config)), getPaths(controllers));
+}
+const swaggerMethods = {
+    '[GET]': 'get',
+    '[POST]': 'post',
+    '[PUT]': 'put',
+    '[DELETE]': 'delete',
+};
+function getHeader(config) {
+    var _a, _b, _c, _d, _e;
     return {
         openapi: '3.0.3',
         info: {
-            title: (_c = (_b = config.swagger) === null || _b === void 0 ? void 0 : _b.title) !== null && _c !== void 0 ? _c : 'NodeNet API',
-            description: (_e = (_d = config.swagger) === null || _d === void 0 ? void 0 : _d.description) !== null && _e !== void 0 ? _e : '',
-            version: (_f = config.version) !== null && _f !== void 0 ? _f : '1.0.0',
+            title: (_b = (_a = config.swagger) === null || _a === void 0 ? void 0 : _a.title) !== null && _b !== void 0 ? _b : 'NodeNet API',
+            description: (_d = (_c = config.swagger) === null || _c === void 0 ? void 0 : _c.description) !== null && _d !== void 0 ? _d : 'NodeNet server API',
+            version: (_e = config.version) !== null && _e !== void 0 ? _e : '1.0.0',
         },
         servers: [
             {
                 url: `${(0, models_1.getHost)(config)}:${config.port}`,
             },
         ],
-        paths,
     };
 }
-function getBody(method) {
-    let body = {
+function getPaths(controllers) {
+    var _a;
+    const paths = {};
+    for (const controllerName in controllers) {
+        const controller = controllers[controllerName];
+        if (controller.method === '[WS]')
+            continue;
+        if (!controller.path)
+            continue;
+        paths[controller.path] = {
+            [swaggerMethods[controller.method]]: Object.assign(Object.assign({ description: (_a = controller.description) !== null && _a !== void 0 ? _a : controllerName }, getResponse()), getRequestBody(controller.method)),
+        };
+    }
+    return { paths };
+}
+function getResponse() {
+    return {
         responses: {
             200: {
                 description: 'OK',
@@ -99,8 +103,11 @@ function getBody(method) {
             },
         },
     };
-    if (method === 'post' || method === 'put')
-        body = Object.assign(Object.assign({}, body), { requestBody: {
+}
+function getRequestBody(method) {
+    if (method === '[PUT]' || method === '[POST]')
+        return {
+            requestBody: {
                 content: {
                     'application/json': {
                         schema: {
@@ -113,23 +120,8 @@ function getBody(method) {
                         },
                     },
                 },
-            } });
-    return body;
-}
-function getMethod(method) {
-    switch (method) {
-        case '[GET]':
-            return 'get';
-        case '[POST]':
-            return 'post';
-        case '[PUT]':
-            return 'put';
-        case '[DELETE]':
-            return 'delete';
-        case '[WS]':
-            return 'ws';
-        default:
-            return 'get';
-    }
+            },
+        };
+    return {};
 }
 //# sourceMappingURL=swagger.creator.js.map

@@ -4,7 +4,6 @@ export type ServerConfig = {
   host?: string;
   version?: string;
   swagger?: {
-    port: number;
     path: string;
     title?: string;
     description?: string;

@@ -1,17 +1,33 @@
 import { Controller, IController } from '../src';
 
-@Controller('[GET]', '/hallo')
+interface ITest {
+  firstName: string;
+  lastName: string;
+  age: number;
+}
+
+@Controller('[GET]', '/hallo/success')
 export class TestController extends IController {
   async call(server) {
     console.log('HERE Controller');
     const data = await this.dispatch('D-Controller');
     console.log(data);
-    return server.error(data);
+    return server.ok(data);
+  }
+}
+
+@Controller('[GET]', '/hallo/error')
+export class Test2Controller extends IController {
+  async call(server) {
+    console.log('HERE Controller');
+    const data = await this.dispatch('D-Controller');
+    console.log(data);
+    return server.error(data, 400);
   }
 }
 
 @Controller('[POST]', '/testPost')
-export class Test2Controller extends IController {
+export class Test3Controller extends IController {
   async call(server) {
     const data = await server.getBody();
     console.log(data);

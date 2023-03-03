@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -31,42 +8,73 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServerCreator = void 0;
-const http = __importStar(require("http"));
-const models_1 = require("../models");
 const websocket_functions_1 = require("./websocket.functions");
+const express_1 = __importDefault(require("express"));
+const swagger_creator_1 = require("./swagger.creator");
 function ServerCreator(controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const server = http.createServer((req, res) => __awaiter(this, void 0, void 0, function* () {
-            writeHead(res, req);
-            for (const key in controllers) {
-                const controller = controllers[key];
-                if (controller.websocket && controller.method === '[WS]' && req.headers.upgrade && controller.path === req.url) {
-                    return yield new Promise((resolve) => {
-                        controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => __awaiter(this, void 0, void 0, function* () {
-                            yield controller.call(getServerObject(req, res, ws));
-                            resolve();
-                        }));
-                    });
+        const server = (0, express_1.default)();
+        for (const key in controllers) {
+            const controller = controllers[key];
+            switch (controller.method) {
+                case '[GET]': {
+                    server.get(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        writeHead(res);
+                        res.end(yield controller.call(getServerObject(req, res)));
+                    }));
+                    break;
                 }
-                else if (controller.path === req.url && controller.method === `[${req.method}]`)
-                    return res.end(yield controller.call(getServerObject(req, res)));
+                case '[WS]': {
+                    server.get(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws) => __awaiter(this, void 0, void 0, function* () {
+                            writeHead(res);
+                            res.end(yield controller.call(getServerObject(req, res, ws)));
+                        }));
+                    }));
+                    break;
+                }
+                case '[POST]': {
+                    server.post(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        writeHead(res);
+                        res.end(yield controller.call(getServerObject(req, res)));
+                    }));
+                    break;
+                }
+                case '[PUT]': {
+                    server.put(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        writeHead(res);
+                        res.end(yield controller.call(getServerObject(req, res)));
+                    }));
+                    break;
+                }
+                case '[DELETE]': {
+                    server.delete(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        writeHead(res);
+                        res.end(yield controller.call(getServerObject(req, res)));
+                    }));
+                    break;
+                }
             }
-            if (req.method === 'OPTIONS')
-                return res.end();
-            if (config.swagger && req.url === config.swagger.path) {
-                res.writeHead(301, { Location: `${(0, models_1.getHost)(config)}:${config.swagger.port}/api` });
-                return res.end();
-            }
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            return res.end(getPayload({ error: 'Not found', code: 404 }));
-        }));
+        }
+        server.options('*', (req, res) => {
+            writeHead(res);
+            res.end();
+        });
+        yield (0, swagger_creator_1.SwaggerCreator)(server, controllers, config);
+        server.get('*', (req, res) => {
+            writeHead(res);
+            res.end(getPayload({ error: 'Not found', code: 404 }));
+        });
         server.listen(config.port);
     });
 }
 exports.ServerCreator = ServerCreator;
-function writeHead(res, req) {
+function writeHead(res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization,Origin,Accept');
@@ -75,7 +83,7 @@ function writeHead(res, req) {
 function getServerObject(req, res, ws) {
     return Object.assign({ req,
         res, getBody: () => __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 let body = '';
                 req.on('data', (chunk) => {
                     body += chunk.toString();

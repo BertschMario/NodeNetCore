@@ -1,4 +1,4 @@
-import { Server } from '../server/server.creator';
+import { Server } from '../server';
 
 export class IController {
   public async dispatch(...args: any): Promise<any> {}

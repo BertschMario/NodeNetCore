@@ -1,8 +1,9 @@
 import * as http from 'http';
-import { getHost, ServerConfig } from '../models';
-import { Logger } from '../helper';
+import { ServerConfig } from '../models';
 import { WebSocket } from 'ws';
 import { getWebsocketFunctions } from './websocket.functions';
+import express from 'express';
+import { SwaggerCreator } from './swagger.creator';
 
 type RES = http.ServerResponse<http.IncomingMessage> & { req: http.IncomingMessage };
 type REQ = http.IncomingMessage;
@@ -28,35 +29,64 @@ export type Server = {
 };
 
 export async function ServerCreator(controllers: { [key: string]: any }, config: ServerConfig) {
-  const server = http.createServer(async (req, res) => {
-    writeHead(res, req);
-    for (const key in controllers) {
-      const controller = controllers[key];
-      //Websocket request
-      if (controller.websocket && controller.method === '[WS]' && req.headers.upgrade && controller.path === req.url) {
-        return await new Promise((resolve) => {
+  const server = express();
+  for (const key in controllers) {
+    const controller = controllers[key];
+    switch (controller.method) {
+      case '[GET]': {
+        server.get(controller.path, async (req, res) => {
+          writeHead(res);
+          res.end(await controller.call(getServerObject(req, res)));
+        });
+        break;
+      }
+      case '[WS]': {
+        server.get(controller.path, async (req, res) => {
           controller.websocket.handleUpgrade(req, req.socket, Buffer.alloc(0), async (ws: WebSocket) => {
-            await controller.call(getServerObject(req, res, ws));
-            resolve();
+            writeHead(res);
+            res.end(await controller.call(getServerObject(req, res, ws)));
           });
         });
-      } else if (controller.path === req.url && controller.method === `[${req.method}]`)
-        return res.end(await controller.call(getServerObject(req, res)));
+        break;
+      }
+      case '[POST]': {
+        server.post(controller.path, async (req, res) => {
+          writeHead(res);
+          res.end(await controller.call(getServerObject(req, res)));
+        });
+        break;
+      }
+      case '[PUT]': {
+        server.put(controller.path, async (req, res) => {
+          writeHead(res);
+          res.end(await controller.call(getServerObject(req, res)));
+        });
+        break;
+      }
+      case '[DELETE]': {
+        server.delete(controller.path, async (req, res) => {
+          writeHead(res);
+          res.end(await controller.call(getServerObject(req, res)));
+        });
+        break;
+      }
     }
-    //Options request
-    if (req.method === 'OPTIONS') return res.end();
-    if (config.swagger && req.url === config.swagger.path) {
-      res.writeHead(301, { Location: `${getHost(config)}:${config.swagger.port}/api` });
-      return res.end();
-    }
-    //Not found
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    return res.end(getPayload({ error: 'Not found', code: 404 }));
+  }
+  server.options('*', (req, res) => {
+    writeHead(res);
+    res.end();
+  });
+
+  await SwaggerCreator(server, controllers, config);
+
+  server.get('*', (req, res) => {
+    writeHead(res);
+    res.end(getPayload({ error: 'Not found', code: 404 }));
   });
   server.listen(config.port);
 }
 
-function writeHead(res: RES, req: REQ) {
+function writeHead(res: RES) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization,Origin,Accept');
@@ -68,7 +98,7 @@ function getServerObject(req: REQ, res: RES, ws?: WebSocket): Server {
     req,
     res,
     getBody: async () => {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         let body = '';
         req.on('data', (chunk) => {
           body += chunk.toString();
