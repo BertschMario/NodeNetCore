@@ -12,11 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Controller = void 0;
 const main_1 = require("../main");
 const _utils_1 = require("../_utils");
-function Controller(method, path) {
+function Controller(method, path, useAuth = false) {
     return function decorator(target) {
         const controller = new target();
         controller.method = method;
         controller.path = path;
+        controller.useAuth = useAuth;
         if (!controller.call)
             return _utils_1.Logger.error(`Controller "${target.name}" does not have an call method`);
         if (!target.name.endsWith('Controller'))

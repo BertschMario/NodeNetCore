@@ -1,6 +1,6 @@
 {
   "name": "@nodenet/core",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "NodeNet Core Library",
   "main": "test/startup.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "babel-cli": "^6.26.0",
     "express": "^4.18.2",
     "express-ws": "^5.0.2",
+    "jsonwebtoken": "^9.0.0",
     "swagger-ui-express": "^4.6.2",
     "ws": "^8.12.1"
   },

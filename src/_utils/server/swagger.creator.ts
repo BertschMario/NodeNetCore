@@ -6,8 +6,8 @@ export async function SwaggerCreator(
   controllers: { [controllerName: string]: any },
   config: ServerConfig,
 ) {
-  if (!config.swagger) return;
-  server.use(config.swagger.path, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
+  if (!config.swaggerPath) return;
+  server.use(config.swaggerPath, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
 }
 
 function createSwaggerJson(controllers: { [controllerName: string]: any }, config: ServerConfig) {
@@ -28,8 +28,8 @@ function getHeader(config: ServerConfig) {
   return {
     openapi: '3.0.3',
     info: {
-      title: config.swagger?.title ?? 'NodeNet API',
-      description: config.swagger?.description ?? 'NodeNet server API',
+      title: config.swaggerTitle ?? 'NodeNet API',
+      description: config.swaggerDescription ?? 'NodeNet server API',
       version: config.version ?? '1.0.0',
     },
     servers: [

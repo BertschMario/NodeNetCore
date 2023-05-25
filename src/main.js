@@ -23,8 +23,8 @@ function main(config) {
             config = { name: 'NodeNet Server', port: 3000 };
         yield (0, server_1.ServerCreator)(exports.controllers, config);
         _utils_1.Logger.info(`Server running: ${(0, _utils_1.getHost)(config)}:${config.port}`);
-        if (config.swagger)
-            _utils_1.Logger.info(`Swagger running: ${(0, _utils_1.getHost)(config)}:${config.port}${config.swagger.path}/`);
+        if (config.swaggerPath)
+            _utils_1.Logger.info(`Swagger running: ${(0, _utils_1.getHost)(config)}:${config.port}${config.swaggerPath}/`);
     });
 }
 exports.main = main;

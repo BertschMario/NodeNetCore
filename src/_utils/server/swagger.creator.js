@@ -37,9 +37,9 @@ const swaggerUi = __importStar(require("swagger-ui-express"));
 const models_1 = require("../models");
 function SwaggerCreator(server, controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!config.swagger)
+        if (!config.swaggerPath)
             return;
-        server.use(config.swagger.path, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
+        server.use(config.swaggerPath, swaggerUi.serve, swaggerUi.setup(createSwaggerJson(controllers, config)));
     });
 }
 exports.SwaggerCreator = SwaggerCreator;
@@ -53,13 +53,13 @@ const swaggerMethods = {
     '[DELETE]': 'delete',
 };
 function getHeader(config) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     return {
         openapi: '3.0.3',
         info: {
-            title: (_b = (_a = config.swagger) === null || _a === void 0 ? void 0 : _a.title) !== null && _b !== void 0 ? _b : 'NodeNet API',
-            description: (_d = (_c = config.swagger) === null || _c === void 0 ? void 0 : _c.description) !== null && _d !== void 0 ? _d : 'NodeNet server API',
-            version: (_e = config.version) !== null && _e !== void 0 ? _e : '1.0.0',
+            title: (_a = config.swaggerTitle) !== null && _a !== void 0 ? _a : 'NodeNet API',
+            description: (_b = config.swaggerDescription) !== null && _b !== void 0 ? _b : 'NodeNet server API',
+            version: (_c = config.version) !== null && _c !== void 0 ? _c : '1.0.0',
         },
         servers: [
             {

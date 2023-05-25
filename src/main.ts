@@ -11,5 +11,5 @@ export async function main(config?: ServerConfig) {
   if (!config) config = { name: 'NodeNet Server', port: 3000 };
   await ServerCreator(controllers, config);
   Logger.info(`Server running: ${getHost(config)}:${config.port}`);
-  if (config.swagger) Logger.info(`Swagger running: ${getHost(config)}:${config.port}${config.swagger.path}/`);
+  if (config.swaggerPath) Logger.info(`Swagger running: ${getHost(config)}:${config.port}${config.swaggerPath}/`);
 }

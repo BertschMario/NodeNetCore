@@ -2,11 +2,12 @@ import { controllers, services } from '../main';
 import { ControllerMethods, Logger } from '../_utils';
 import { WebSocketServer } from 'ws';
 
-export function Controller(method: ControllerMethods, path: string) {
+export function Controller(method: ControllerMethods, path: string, useAuth = false) {
   return function decorator(target) {
     const controller = new target();
     controller.method = method;
     controller.path = path;
+    controller.useAuth = useAuth;
 
     if (!controller.call) return Logger.error(`Controller "${target.name}" does not have an call method`);
     if (!target.name.endsWith('Controller'))

@@ -17,47 +17,61 @@ const websocket_functions_1 = require("./websocket.functions");
 const express_1 = __importDefault(require("express"));
 const swagger_creator_1 = require("./swagger.creator");
 const express_ws_1 = __importDefault(require("express-ws"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const helper_1 = require("../helper");
 function ServerCreator(controllers, config) {
     return __awaiter(this, void 0, void 0, function* () {
         const server = (0, express_ws_1.default)((0, express_1.default)()).app;
         for (const key in controllers) {
             const controller = controllers[key];
+            if (controller.useAuth && !config.jwtSecret)
+                helper_1.Logger.error(`Controller ${key} uses auth but no jwtSecret is set in config`);
             switch (controller.method) {
                 case '[GET]': {
                     server.get(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        if (!(yield checkAuth(req, res, controller, config)))
+                            return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res)));
+                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
                     }));
                     break;
                 }
                 case '[WS]': {
-                    server.get(controller.path, (req, res) => {
+                    server.get(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        if (!(yield checkAuth(req, res, controller, config)))
+                            return;
                         writeHead(res);
                         res.end();
-                    });
+                    }));
                     server.ws(controller.path, (ws, req) => __awaiter(this, void 0, void 0, function* () {
-                        yield controller.call(getServerObject(req, undefined, ws));
+                        yield controller.call(getServerObject(req, undefined, ws, config));
                     }));
                     break;
                 }
                 case '[POST]': {
                     server.post(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        if (!(yield checkAuth(req, res, controller, config)))
+                            return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res)));
+                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
                     }));
                     break;
                 }
                 case '[PUT]': {
                     server.put(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        if (!(yield checkAuth(req, res, controller, config)))
+                            return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res)));
+                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
                     }));
                     break;
                 }
                 case '[DELETE]': {
                     server.delete(controller.path, (req, res) => __awaiter(this, void 0, void 0, function* () {
+                        if (!(yield checkAuth(req, res, controller, config)))
+                            return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res)));
+                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
                     }));
                     break;
                 }
@@ -76,15 +90,44 @@ function ServerCreator(controllers, config) {
     });
 }
 exports.ServerCreator = ServerCreator;
+function checkAuth(req, res, controller, config) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve) => {
+            var _a;
+            if (controller.useAuth) {
+                if (!req.headers.authorization) {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(getPayload({ error: 'Unauthorized', code: 401 }));
+                    return resolve(false);
+                }
+                const token = (_a = req.headers.authorization) !== null && _a !== void 0 ? _a : '';
+                jsonwebtoken_1.default.verify(token, config.jwtSecret, (err) => {
+                    if (err) {
+                        res.writeHead(401, { 'Content-Type': 'application/json' });
+                        res.end(getPayload({ error: 'Unauthorized', code: 401 }));
+                        return resolve(false);
+                    }
+                    else
+                        return resolve(true);
+                });
+            }
+            resolve(true);
+        });
+    });
+}
 function writeHead(res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'same-origin');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization,Origin,Accept');
     res.setHeader('Access-Control-Max-Age', '86400');
 }
-function getServerObject(req, res, ws) {
+function getServerObject(req, res, ws, config) {
     return Object.assign({ req,
-        res, getBody: () => __awaiter(this, void 0, void 0, function* () {
+        res, signToken: (payload, expiresInHours) => __awaiter(this, void 0, void 0, function* () {
+            if (!config || !config.jwtSecret)
+                throw helper_1.Logger.error(`No jwtSecret is set in config`);
+            return jsonwebtoken_1.default.sign(payload, config.jwtSecret, { expiresIn: expiresInHours ? `${expiresInHours}h` : '24h' });
+        }), getBody: () => __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let body = '';
                 req.on('data', (chunk) => {

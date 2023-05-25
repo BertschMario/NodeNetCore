@@ -3,11 +3,10 @@ export type ServerConfig = {
   port: number;
   host?: string;
   version?: string;
-  swagger?: {
-    path: string;
-    title?: string;
-    description?: string;
-  };
+  swaggerPath?: string;
+  swaggerTitle?: string;
+  swaggerDescription?: string;
+  jwtSecret?: string;
 };
 
 export function getHost(config: ServerConfig) {
