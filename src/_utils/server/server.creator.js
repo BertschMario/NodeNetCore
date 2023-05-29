@@ -32,7 +32,8 @@ function ServerCreator(controllers, config) {
                         if (!(yield checkAuth(req, res, controller, config)))
                             return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
+                        const serverObject = getServerObject(req, res, undefined, config);
+                        controller.call(serverObject).then((result) => res.end(result)).catch((error) => res.end(serverObject.error(error)));
                     }));
                     break;
                 }
@@ -53,7 +54,8 @@ function ServerCreator(controllers, config) {
                         if (!(yield checkAuth(req, res, controller, config)))
                             return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
+                        const serverObject = getServerObject(req, res, undefined, config);
+                        controller.call(serverObject).then((result) => res.end(result)).catch((error) => res.end(serverObject.error(error)));
                     }));
                     break;
                 }
@@ -62,7 +64,8 @@ function ServerCreator(controllers, config) {
                         if (!(yield checkAuth(req, res, controller, config)))
                             return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
+                        const serverObject = getServerObject(req, res, undefined, config);
+                        controller.call(serverObject).then((result) => res.end(result)).catch((error) => res.end(serverObject.error(error)));
                     }));
                     break;
                 }
@@ -71,7 +74,8 @@ function ServerCreator(controllers, config) {
                         if (!(yield checkAuth(req, res, controller, config)))
                             return;
                         writeHead(res);
-                        res.end(yield controller.call(getServerObject(req, res, undefined, config)));
+                        const serverObject = getServerObject(req, res, undefined, config);
+                        controller.call(serverObject).then((result) => res.end(result)).catch((error) => res.end(serverObject.error(error)));
                     }));
                     break;
                 }
@@ -123,11 +127,24 @@ function writeHead(res) {
 }
 function getServerObject(req, res, ws, config) {
     return Object.assign({ req,
-        res, signToken: (payload, expiresInHours) => __awaiter(this, void 0, void 0, function* () {
-            if (!config || !config.jwtSecret)
-                throw helper_1.Logger.error(`No jwtSecret is set in config`);
-            return jsonwebtoken_1.default.sign(payload, config.jwtSecret, { expiresIn: expiresInHours ? `${expiresInHours}h` : '24h' });
-        }), getBody: () => __awaiter(this, void 0, void 0, function* () {
+        res, auth: {
+            signToken: (payload, expiresInHours) => __awaiter(this, void 0, void 0, function* () {
+                if (!config || !config.jwtSecret)
+                    throw helper_1.Logger.error(`No jwtSecret is set in config`);
+                return jsonwebtoken_1.default.sign(payload, config.jwtSecret, { expiresIn: expiresInHours ? `${expiresInHours}h` : '24h' });
+            }),
+            getAuthToken: () => __awaiter(this, void 0, void 0, function* () {
+                var _a;
+                return (_a = req.headers.authorization) !== null && _a !== void 0 ? _a : '';
+            }),
+            getAuthTokenObject: () => __awaiter(this, void 0, void 0, function* () {
+                var _b;
+                const token = (_b = req.headers.authorization) !== null && _b !== void 0 ? _b : '';
+                if (!token)
+                    return null;
+                return JSON.parse(atob(token.split('.')[1]));
+            }),
+        }, getBody: () => __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let body = '';
                 req.on('data', (chunk) => {

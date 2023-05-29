@@ -15,10 +15,14 @@ type REQ = http.IncomingMessage;
 export type Server = {
   req: REQ;
   res: RES;
-  getBody: () => Promise<any>;
+  getBody: <T>() => Promise<T>;
   ok: (payload?: any) => Promise<any>;
   error: (payload?: any, code?: number) => Promise<any>;
-  signToken: (payload: any, expiresInHours?: number) => Promise<string>;
+  auth: {
+    signToken: (payload: any, expiresInHours?: number) => Promise<string>;
+    getAuthToken: () => Promise<string>;
+    getAuthTokenObject: <T>() => Promise<T | null>;
+  }
   ws: {
     onMessage: (callback: (id: string, payload: any) => void) => void;
     onClose: (callback: (id: string) => void) => void;
@@ -43,7 +47,8 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
         server.get(controller.path, async (req, res) => {
           if(!await checkAuth(req, res, controller, config)) return;
           writeHead(res);
-          res.end(await controller.call(getServerObject(req, res,undefined, config)));
+          const serverObject = getServerObject(req, res,undefined, config);
+          controller.call(serverObject).then((result: any) => res.end(result)).catch((error: any) => res.end(serverObject.error(error)))
         });
         break;
       }
@@ -62,7 +67,8 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
         server.post(controller.path, async (req, res) => {
           if(!await checkAuth(req, res, controller, config)) return;
           writeHead(res);
-          res.end(await controller.call(getServerObject(req, res,undefined, config)));
+          const serverObject = getServerObject(req, res,undefined, config);
+          controller.call(serverObject).then((result: any) => res.end(result)).catch((error: any) => res.end(serverObject.error(error)))
         });
         break;
       }
@@ -70,7 +76,8 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
         server.put(controller.path, async (req, res) => {
           if(!await checkAuth(req, res, controller, config)) return;
           writeHead(res);
-          res.end(await controller.call(getServerObject(req, res,undefined, config)));
+          const serverObject = getServerObject(req, res,undefined, config);
+          controller.call(serverObject).then((result: any) => res.end(result)).catch((error: any) => res.end(serverObject.error(error)))
         });
         break;
       }
@@ -78,7 +85,8 @@ export async function ServerCreator(controllers: { [key: string]: any }, config:
         server.delete(controller.path, async (req, res) => {
           if(!await checkAuth(req, res, controller, config)) return;
           writeHead(res);
-          res.end(await controller.call(getServerObject(req, res,undefined, config)));
+          const serverObject = getServerObject(req, res,undefined, config);
+          controller.call(serverObject).then((result: any) => res.end(result)).catch((error: any) => res.end(serverObject.error(error)))
         });
         break;
       }
@@ -132,12 +140,22 @@ function getServerObject(req: REQ, res?: RES, ws?: WebSocket, config?: ServerCon
   return {
     req,
     res,
-    signToken: async (payload: any, expiresInHours?: number) => {
-      if(!config || !config.jwtSecret) throw Logger.error(`No jwtSecret is set in config`);
-      return jsonWebToken.sign(payload, config.jwtSecret, { expiresIn: expiresInHours ? `${expiresInHours}h` : '24h' });
+    auth: {
+      signToken: async (payload: any, expiresInHours?: number) => {
+        if(!config || !config.jwtSecret) throw Logger.error(`No jwtSecret is set in config`);
+        return jsonWebToken.sign(payload, config.jwtSecret, { expiresIn: expiresInHours ? `${expiresInHours}h` : '24h' });
+      },
+      getAuthToken: async () => {
+        return req.headers.authorization ?? '';
+      },
+      getAuthTokenObject: async <T>(): Promise<T | null> => {
+        const token = req.headers.authorization ?? '';
+        if(!token) return null;
+        return JSON.parse(atob(token.split('.')[1]));
+      },
     },
-    getBody: async () => {
-      return new Promise((resolve) => {
+    getBody: async <T>() => {
+      return new Promise<T>((resolve) => {
         let body = '';
         req.on('data', (chunk) => {
           body += chunk.toString();
