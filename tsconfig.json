@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2022",
     "module": "commonjs",
     "lib": [
       "dom",
@@ -8,6 +8,7 @@
       "es2017",
       "esnext.asynciterable"
     ],
+    "skipLibCheck": true,
     "sourceMap": true,
     "moduleResolution": "node",
     "removeComments": true,
@@ -32,5 +33,5 @@
   "include": [
     "./**/*.tsx",
     "./**/*.ts"
-  ]
+  ],
 }
